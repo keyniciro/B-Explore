@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Fortify;
+namespace App\Modules\Wisatawan\Actions;
 
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
@@ -15,6 +15,9 @@ class CreateNewUser implements CreatesNewUsers
     /**
      * Validate and create a newly registered user.
      *
+     * Registrasi publik SELALU menghasilkan wisatawan. role diisi server (bukan dari input),
+     * dan tenant_id dibiarkan kosong: tenant baru terbentuk lewat pendaftaran mitra.
+     *
      * @param  array<string, string>  $input
      */
     public function create(array $input): User
@@ -24,10 +27,14 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
-        return User::create([
+        $user = new User([
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => $input['password'],
         ]);
+        $user->role = User::ROLE_WISATAWAN;
+        $user->save();
+
+        return $user;
     }
 }

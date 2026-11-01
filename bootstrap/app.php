@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Auth\EnsureUserHasRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,7 +13,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'role' => EnsureUserHasRole::class,
+        ]);
+
+        // Tamu yang membuka dashboard mitra dikirim ke login mitra; selain itu ke login wisatawan.
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('mitra/dashboard*')
+            ? route('mitra.login')
+            : route('login'));
+
+        // Pengguna yang SUDAH login lalu membuka halaman tamu (/login, /register) dikirim ke beranda rolenya.
+        $middleware->redirectUsersTo(fn (Request $request) => $request->user()?->homeUrl() ?? route('home'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
