@@ -10,7 +10,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-new #[Layout('layouts::portal'), Title('Daftar Mitra')] class extends Component {
+new #[Layout('layouts::auth', ['lebar' => 'max-w-2xl']), Title('Daftar Mitra')] class extends Component {
     use WithFileUploads;
 
     public string $nama = '';
@@ -88,9 +88,9 @@ new #[Layout('layouts::portal'), Title('Daftar Mitra')] class extends Component 
     }
 }; ?>
 
-<div class="max-w-xl mx-auto bg-white rounded-2xl shadow p-10">
-    <h1 class="text-2xl italic font-bold text-center text-gray-900 mb-1">Daftar Jadi Mitra</h1>
-    <p class="text-center text-sm text-gray-500 mb-8">
+<div>
+    <h2 class="text-xl font-semibold text-center text-gray-900 mb-1">Daftar Jadi Mitra</h2>
+    <p class="text-center text-sm text-gray-500 mb-6">
         Isi data usaha Anda. Setelah berhasil, akun Anda tetap bisa dipakai belanja seperti biasa, dan mendapat tambahan akses kelola mitra.
     </p>
 
@@ -107,4 +107,8 @@ new #[Layout('layouts::portal'), Title('Daftar Mitra')] class extends Component 
             <span wire:loading wire:target="simpan">Menyimpan…</span>
         </x-explore.button>
     </form>
+
+    <p class="mt-5 text-center text-sm text-gray-500">
+        <a href="{{ route('dashboard') }}" class="text-emerald-600 hover:underline">← Kembali ke dashboard</a>
+    </p>
 </div>
