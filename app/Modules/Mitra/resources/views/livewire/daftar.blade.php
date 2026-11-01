@@ -18,6 +18,7 @@ new #[Layout('layouts::auth', ['lebar' => 'max-w-2xl']), Title('Daftar Mitra')] 
     public string $telepon = '';
     public string $alamat = '';
     public string $deskripsi = '';
+    /** @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile|null */
     public $logo = null;
 
     public function mount()
