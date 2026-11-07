@@ -19,6 +19,12 @@ final class PortalRoutes
         Route::middleware('web')->group($routes);
     }
 
+    /** API stateless (token Sanctum): prefix /api, memakai grup middleware 'api' (tanpa sesi/CSRF). */
+    public static function api(Closure $routes): void
+    {
+        Route::middleware('api')->prefix('api')->group($routes);
+    }
+
     /** Portal wisatawan: harus login, email terverifikasi, role wisatawan. */
     public static function wisatawan(Closure $routes): void
     {
