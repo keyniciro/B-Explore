@@ -8,8 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Setelah logout: form logout mengirim field `portal`. Dari portal mitra kembali ke
- * /mitra/login, selain itu ke halaman awal. (Saat response dibuat, user sudah logout,
- * jadi asalnya tidak bisa dibaca dari role.)
+ * /mitra/login, dari portal admin ke /admin/login, selain itu ke halaman awal.
  */
 final class LogoutResponse implements LogoutResponseContract
 {
@@ -19,8 +18,10 @@ final class LogoutResponse implements LogoutResponseContract
             return new JsonResponse('', 204);
         }
 
-        return redirect($request->input('portal') === 'mitra'
-            ? route('mitra.login')
-            : route('home'));
+        return redirect(match ($request->input('portal')) {
+            'mitra' => route('mitra.login'),
+            'admin' => route('admin.login'),
+            default => route('home'),
+        });
     }
 }

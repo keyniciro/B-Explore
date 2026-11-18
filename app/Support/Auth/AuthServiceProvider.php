@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Contracts\LogoutResponse as LogoutResponseContract;
 use Laravel\Fortify\Fortify;
+use App\Models\Mitra;
 
 /**
  * Aturan autentikasi yang dipakai BERSAMA oleh portal wisatawan dan mitra (lintas modul):
@@ -82,15 +83,21 @@ class AuthServiceProvider extends ServiceProvider
             $user = User::query()->where('email', $email)->first();
 
             if ($user !== null && $user->isActive() && Hash::check((string) $request->input('password'), $user->password)) {
-                $portal = $request->input('portal') === 'mitra'
-                    ? User::ROLE_MITRA
-                    : User::ROLE_WISATAWAN;
+                $portal = match ($request->input('portal')) {
+                    'mitra' => User::ROLE_MITRA,
+                    'admin' => User::ROLE_ADMIN,
+                    default => User::ROLE_WISATAWAN,
+                };
 
                 if (! $user->hasRole($portal)) {
                     throw ValidationException::withMessages([
-                        Fortify::username() => $portal === User::ROLE_MITRA
-                            ? 'Akun ini tidak punya akses mitra. Masuk sebagai wisatawan, lalu pilih Daftar Mitra di dashboard (atau hubungi admin bila mitra Anda dinonaktifkan).'
-                            : 'Akun ini tidak dapat masuk lewat halaman ini.',
+                        Fortify::username() => match ($portal) {
+                            User::ROLE_MITRA => $user->mitra?->status === Mitra::STATUS_PENDING
+                                ? 'Pengajuan mitra Anda masih menunggu persetujuan admin. Sementara itu Anda bisa masuk sebagai wisatawan.'
+                                : 'Akun ini tidak punya akses mitra. Masuk sebagai wisatawan, lalu pilih Daftar Mitra di dashboard (atau hubungi admin bila mitra Anda dinonaktifkan).',
+                            User::ROLE_ADMIN => 'Akun ini bukan akun admin.',
+                            default => 'Akun ini tidak dapat masuk lewat halaman ini.',
+                        },
                     ]);
                 }
 

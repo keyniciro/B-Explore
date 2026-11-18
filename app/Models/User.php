@@ -92,7 +92,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     {
         return $this->role === self::ROLE_MITRA
             && $this->mitra !== null
-            && $this->mitra->status !== 'nonaktif';
+            && $this->mitra->status === Mitra::STATUS_AKTIF;
     }
 
     /**
@@ -133,6 +133,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     {
         return match ($this->role) {
             self::ROLE_MITRA, self::ROLE_WISATAWAN => route('dashboard'),
+            self::ROLE_ADMIN => route('admin.dashboard'),
             default => route('home'),
         };
     }

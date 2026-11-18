@@ -17,6 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureUserHasRole::class,
         ]);
 
+        // Tamu dikirim ke login portal yang dituju: mitra, admin, atau wisatawan.
+        $middleware->redirectGuestsTo(fn (Request $request) => match (true) {
+            $request->is('mitra/dashboard*') => route('mitra.login'),
+            $request->is('admin', 'admin/*') => route('admin.login'),
+            default => route('login'),
+        });
+
         // Tamu yang membuka dashboard mitra dikirim ke login mitra; selain itu ke login wisatawan.
         $middleware->redirectGuestsTo(fn (Request $request) => $request->is('mitra/dashboard*')
             ? route('mitra.login')

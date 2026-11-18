@@ -2,8 +2,13 @@
 @php
     $user = auth()->user();
     $adalahMitra = $user?->hasRole(\App\Models\User::ROLE_MITRA) ?? false;
-    // Asal logout menentukan tujuan setelahnya: dari halaman kelola mitra -> /mitra/login, lainnya -> beranda.
-    $portal = request()->is('mitra/*') && ! request()->routeIs('mitra.daftar') ? 'mitra' : 'wisatawan';
+    $adalahAdmin = $user?->role === \App\Models\User::ROLE_ADMIN;
+    // Asal logout menentukan tujuan setelahnya: admin -> /admin/login, mitra -> /mitra/login, lainnya -> beranda.
+    $portal = match (true) {
+        request()->is('admin', 'admin/*') => 'admin',
+        request()->is('mitra/*') && ! request()->routeIs('mitra.daftar') => 'mitra',
+        default => 'wisatawan',
+    };
 @endphp
 <!DOCTYPE html>
 <html lang="id">
@@ -22,10 +27,15 @@
             <a href="{{ $user?->homeUrl() ?? route('home') }}" class="text-xl italic font-bold text-emerald-700">B-Explore</a>
 
             <div class="flex items-center gap-4">
-                <a href="{{ route('dashboard') }}" class="text-sm text-gray-600 hover:text-emerald-700">Dashboard</a>
+                @if ($adalahAdmin)
+                    <a href="{{ route('admin.dashboard') }}" class="text-sm text-gray-600 hover:text-emerald-700">Dashboard</a>
+                    <a href="{{ route('admin.verifikasi-mitra') }}" class="text-sm font-medium text-emerald-700 hover:underline" data-test="verifikasi-mitra-link">Verifikasi Mitra</a>
+                @else
+                    <a href="{{ route('dashboard') }}" class="text-sm text-gray-600 hover:text-emerald-700">Dashboard</a>
 
-                @if ($adalahMitra)
-                    <a href="{{ route('mitra.dashboard') }}" class="text-sm font-medium text-emerald-700 hover:underline" data-test="kelola-mitra-link">Kelola Mitra</a>
+                    @if ($adalahMitra)
+                        <a href="{{ route('mitra.dashboard') }}" class="text-sm font-medium text-emerald-700 hover:underline" data-test="kelola-mitra-link">Kelola Mitra</a>
+                    @endif
                 @endif
 
                 <a href="{{ route('profile.edit') }}" class="text-sm text-gray-600 hover:text-emerald-700">Profil</a>

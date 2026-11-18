@@ -30,7 +30,7 @@ new #[Layout('layouts::portal'), Title('Verifikasi Mitra')] class extends Compon
 
     public function daftarMitra()
     {
-        $this->otorisasi();
+        $this->admin();
 
         $status = in_array($this->filter, ['pending', 'aktif', 'ditolak', 'nonaktif'], true)
             ? $this->filter
@@ -41,14 +41,13 @@ new #[Layout('layouts::portal'), Title('Verifikasi Mitra')] class extends Compon
 
     public function setujui(int $id): void
     {
-        $this->otorisasi();
-        $berhasil = app(VerifikasiMitra::class)->setujui($id, Auth::user());
+        $berhasil = app(VerifikasiMitra::class)->setujui($id, $this->admin());
         $this->umpan($berhasil, 'Mitra disetujui. Pemiliknya sekarang bisa masuk ke portal mitra.');
     }
 
     public function mulaiTolak(int $id): void
     {
-        $this->otorisasi();
+        $this->admin();
         $this->tolakId = $id;
         $this->alasan = '';
         $this->resetErrorBag();
@@ -63,7 +62,7 @@ new #[Layout('layouts::portal'), Title('Verifikasi Mitra')] class extends Compon
 
     public function tolak(): void
     {
-        $this->otorisasi();
+        $admin = $this->admin();
 
         $this->validate(
             ['alasan' => ['required', 'string', 'min:10', 'max:500']],
@@ -79,29 +78,34 @@ new #[Layout('layouts::portal'), Title('Verifikasi Mitra')] class extends Compon
             return;
         }
 
-        $berhasil = app(VerifikasiMitra::class)->tolak($this->tolakId, trim($this->alasan), Auth::user());
+        $berhasil = app(VerifikasiMitra::class)->tolak($this->tolakId, trim($this->alasan), $admin);
         $this->batalTolak();
         $this->umpan($berhasil, 'Pengajuan ditolak. Pemohon akan melihat alasannya di dashboard dan bisa mengajukan ulang.');
     }
 
     public function nonaktifkan(int $id): void
     {
-        $this->otorisasi();
-        $berhasil = app(VerifikasiMitra::class)->nonaktifkan($id, Auth::user());
+        $berhasil = app(VerifikasiMitra::class)->nonaktifkan($id, $this->admin());
         $this->umpan($berhasil, 'Mitra dinonaktifkan.');
     }
 
     public function aktifkan(int $id): void
     {
-        $this->otorisasi();
-        $berhasil = app(VerifikasiMitra::class)->aktifkan($id, Auth::user());
+        $berhasil = app(VerifikasiMitra::class)->aktifkan($id, $this->admin());
         $this->umpan($berhasil, 'Mitra diaktifkan kembali.');
     }
 
-    // Aksi Livewire adalah endpoint tersendiri: periksa ulang hak admin di tiap aksi.
-    private function otorisasi(): void
+    /**
+     * Aksi Livewire adalah endpoint tersendiri: periksa ulang hak admin di tiap aksi.
+     * Mengembalikan User supaya tipenya jelas (admin yang sedang login).
+     */
+    private function admin(): User
     {
-        abort_unless(Auth::user()?->hasRole(User::ROLE_ADMIN), 403);
+        $user = Auth::user();
+
+        abort_unless($user instanceof User && $user->hasRole(User::ROLE_ADMIN), 403);
+
+        return $user;
     }
 
     private function umpan(bool $berhasil, string $sukses): void
