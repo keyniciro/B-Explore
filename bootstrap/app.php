@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+<<<<<<< HEAD
             'role' => EnsureUserHasRole::class,
         ]);
 
@@ -31,6 +32,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Pengguna yang SUDAH login lalu membuka halaman tamu (/login, /register) dikirim ke beranda rolenya.
         $middleware->redirectUsersTo(fn (Request $request) => $request->user()?->homeUrl() ?? route('home'));
+=======
+        'role'  => \App\Http\Middleware\EnsureUserHasRole::class,
+        'mitra' => \App\Http\Middleware\SetMitraContext::class,
+    ]);
+        //
+>>>>>>> kennzac
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

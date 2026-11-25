@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
         ])->save();
 
+<<<<<<< HEAD
         $mitra = Mitra::unguarded(fn () => Mitra::firstOrCreate(
             ['slug' => 'wisata-contoh'],
             [
@@ -41,5 +42,13 @@ class DatabaseSeeder extends Seeder
             'tenant_id' => $mitra->id,
             'email_verified_at' => now(),
         ])->save();
+=======
+        User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+        ]);
+
+        $this->call(MitraSeeder::class);
+>>>>>>> kennzac
     }
 }

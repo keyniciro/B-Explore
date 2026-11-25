@@ -2,6 +2,7 @@
 
 namespace App\Support\Routing;
 
+<<<<<<< HEAD
 use App\Models\User;
 use Closure;
 use Illuminate\Support\Facades\Route;
@@ -45,8 +46,30 @@ final class PortalRoutes
     public static function admin(Closure $routes): void
     {
         Route::middleware(['web', 'auth', 'verified', 'role:'.User::ROLE_ADMIN])
+=======
+use Closure;
+use Illuminate\Support\Facades\Route;
+
+final class PortalRoutes
+{
+    public static function admin(Closure|string $routes): void
+    {
+        Route::middleware(['web', 'auth', 'verified', 'role:admin'])
+>>>>>>> kennzac
             ->prefix('admin')
             ->name('admin.')
             ->group($routes);
     }
+<<<<<<< HEAD
 }
+=======
+
+    public static function mitra(Closure|string $routes): void
+    {
+        Route::middleware(['web', 'auth', 'verified', 'role:mitra', 'mitra'])
+            ->prefix('mitra')
+            ->name('mitra.')
+            ->group($routes);
+    }
+}
+>>>>>>> kennzac
